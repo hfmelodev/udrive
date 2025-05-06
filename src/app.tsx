@@ -5,7 +5,7 @@ import { Router } from './router'
 export function App() {
   return (
     <HelmetProvider>
-      <Helmet titleTemplate="%s | ViteSpark" />
+      <Helmet titleTemplate="%s | UDrive" />
       <BrowserRouter>
         <Router />
       </BrowserRouter>
