@@ -4,7 +4,7 @@ import UDrive from '../../assets/udrive-roudend.png'
 
 export function Header() {
   return (
-    <div className="w-full flex items-center justify-center h-16 bg-gray-100 drop-shadow-sm border-b">
+    <div className="w-full flex items-center justify-center h-16 bg-white drop-shadow-sm border-b">
       <header className="flex items-center justify-between container px-4 mx-auto">
         <Link to="/">
           <img src={UDrive} className="w-32 object-contain" alt="Logo UDrive" />

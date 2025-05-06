@@ -20,7 +20,7 @@ export function Router() {
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>
-        <Route index path="sign-in" element={<SignIn />} />
+        <Route index element={<SignIn />} />
         <Route path="register" element={<Register />} />
       </Route>
 
