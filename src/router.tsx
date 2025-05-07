@@ -3,12 +3,12 @@ import { AppLayout } from './_layouts/app'
 import { AuthLayout } from './_layouts/auth'
 import { PrivateRoute, PublicRoute } from './middleware'
 import { NotFound } from './not-found'
-import { CarDetails } from './pages/car-details'
-import { Dashboard } from './pages/dashboard'
-import { Home } from './pages/home'
-import { NewCar } from './pages/new-car'
-import { Register } from './pages/register'
-import { SignIn } from './pages/sign-in'
+import { CarDetails } from './pages/private/car-details'
+import { Dashboard } from './pages/private/dashboard'
+import { NewCar } from './pages/private/new-car'
+import { Home } from './pages/public/home'
+import { Register } from './pages/public/register'
+import { SignIn } from './pages/public/sign-in'
 
 export function Router() {
   return (

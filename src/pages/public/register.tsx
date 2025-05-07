@@ -1,18 +1,19 @@
 import { Helmet } from 'react-helmet-async'
 
+import UDrive from '@/assets/udrive-roudend.png'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { auth } from '@/lib/firebase'
+import { useAuthStore } from '@/store/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FirebaseError } from 'firebase/app'
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import { Loader2, Lock, Mail, User, UserPlus } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import UDrive from '../assets/udrive-roudend.png'
 
 const registerFormSchema = z.object({
   name: z.string().nonempty({ message: 'O nome é obrigatório' }),
@@ -26,6 +27,7 @@ type RegisterFormType = z.infer<typeof registerFormSchema>
 
 export function Register() {
   const navigate = useNavigate()
+  const { setUser } = useAuthStore()
 
   const {
     register,
@@ -47,6 +49,9 @@ export function Register() {
       await updateProfile(user, {
         displayName: data.name,
       })
+
+      // Atualiza o usuário no store
+      setUser(user)
 
       toast.success('Conta criada com sucesso', {
         description: 'Você já pode fazer login',
@@ -76,12 +81,14 @@ export function Register() {
     <>
       <Helmet title="Register" />
 
-      <div className="flex flex-col items-center justify-center w-full">
-        <img
-          src={UDrive}
-          className="w-full max-w-sm object-cover"
-          alt="Logo UDrive"
-        />
+      <div className="flex flex-col items-center justify-center w-full mx-4">
+        <Link to="/">
+          <img
+            src={UDrive}
+            className="w-full max-w-sm object-cover"
+            alt="Logo UDrive"
+          />
+        </Link>
 
         <form
           onSubmit={handleSubmit(handleRegister)}

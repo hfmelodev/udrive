@@ -1,54 +1,17 @@
 import { Loading } from '@/components/app/loading'
-import { type ReactNode, useEffect, useState } from 'react'
-import { Navigate, useNavigate } from 'react-router'
-import { auth } from './lib/firebase'
+import type { ReactNode } from 'react'
+import { Navigate } from 'react-router'
+import { useAuthStore } from './store/auth'
 
 type RouteProps = {
   children: ReactNode
 }
 
-type MinimalUser = {
-  uid: string
-  name: string | null
-  email: string | null
-}
-
 export function PrivateRoute({ children }: RouteProps) {
-  const [loading, setLoading] = useState(true)
-  const [signedIn, setSignedIn] = useState(false)
+  const { signedIn, loadingAuth } = useAuthStore()
 
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    // Verificar se o usuário está autenticado antes de renderizar o componente
-    const unsub = auth.onAuthStateChanged(user => {
-      if (!user) {
-        navigate('/auth', { replace: true })
-      }
-
-      if (user) {
-        const data: MinimalUser = {
-          uid: user.uid,
-          name: user.displayName,
-          email: user.email,
-        }
-
-        localStorage.setItem('@udrive/user', JSON.stringify(data))
-
-        setLoading(false)
-        setSignedIn(true)
-      } else {
-        setLoading(false)
-        setSignedIn(false)
-      }
-    })
-
-    // Desconectar o listener quando o componente for desmontado
-    return () => unsub()
-  }, [navigate])
-
-  if (loading) {
-    return <Loading isLoading={loading} />
+  if (loadingAuth) {
+    return <Loading isLoading={loadingAuth} />
   }
 
   if (!signedIn) {
@@ -59,22 +22,10 @@ export function PrivateRoute({ children }: RouteProps) {
 }
 
 export function PublicRoute({ children }: RouteProps) {
-  const [loading, setLoading] = useState(true)
-  const [signedIn, setSignedIn] = useState(false)
+  const { signedIn, loadingAuth } = useAuthStore()
 
-  useEffect(() => {
-    const unsub = auth.onAuthStateChanged(user => {
-      if (user) {
-        setSignedIn(true)
-      }
-      setLoading(false)
-    })
-
-    return () => unsub()
-  }, [])
-
-  if (loading) {
-    return <Loading isLoading={loading} />
+  if (loadingAuth) {
+    return <Loading isLoading={loadingAuth} />
   }
 
   if (signedIn) {

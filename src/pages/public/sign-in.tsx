@@ -4,16 +4,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Lock, LogIn, Mail } from 'lucide-react'
+import { Loader2, Lock, LogIn, Mail } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import UDrive from '@/assets/udrive-roudend.png'
 import { auth } from '@/lib/firebase'
 import { FirebaseError } from 'firebase/app'
 import { signInWithEmailAndPassword } from 'firebase/auth'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
-import UDrive from '../assets/udrive-roudend.png'
 
 const signInFormSchema = z.object({
   email: z.string().email({ message: 'Insira um e-mail válido' }),
@@ -29,7 +29,7 @@ export function SignIn() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<SignInFormType>({
     resolver: zodResolver(signInFormSchema),
   })
@@ -66,12 +66,14 @@ export function SignIn() {
     <>
       <Helmet title="SignIn" />
 
-      <div className="flex flex-col items-center justify-center w-full">
-        <img
-          src={UDrive}
-          className="w-full max-w-sm object-cover"
-          alt="Logo UDrive"
-        />
+      <div className="flex flex-col items-center justify-center w-full mx-4">
+        <Link to="/">
+          <img
+            src={UDrive}
+            className="w-full max-w-sm object-cover"
+            alt="Logo UDrive"
+          />
+        </Link>
 
         <form
           onSubmit={handleSubmit(handleSignIn)}
@@ -119,9 +121,18 @@ export function SignIn() {
             </div>
           </div>
 
-          <Button className="w-full mt-4">
-            <LogIn />
-            Entrar
+          <Button className="w-full mt-4" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="animate-spin" />
+                Validando dados...
+              </>
+            ) : (
+              <>
+                <LogIn />
+                Entrar
+              </>
+            )}
           </Button>
         </form>
 
