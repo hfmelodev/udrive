@@ -8,6 +8,11 @@ import { Lock, LogIn, Mail } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import { auth } from '@/lib/firebase'
+import { FirebaseError } from 'firebase/app'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { useNavigate } from 'react-router'
+import { toast } from 'sonner'
 import UDrive from '../assets/udrive-roudend.png'
 
 const signInFormSchema = z.object({
@@ -20,6 +25,7 @@ const signInFormSchema = z.object({
 type SignInFormType = z.infer<typeof signInFormSchema>
 
 export function SignIn() {
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
@@ -29,7 +35,31 @@ export function SignIn() {
   })
 
   async function handleSignIn(data: SignInFormType) {
-    console.log(data)
+    try {
+      await signInWithEmailAndPassword(auth, data.email, data.password)
+
+      toast.success('Login realizado com sucesso', {
+        description: 'Você já pode começar a usar o UDrive',
+      })
+
+      navigate('/dashboard', { replace: true })
+    } catch (err) {
+      console.log(err)
+
+      if (err instanceof FirebaseError) {
+        if (err.code === 'auth/invalid-credential') {
+          toast.error('E-mail ou senha inválidos', {
+            description: 'Tente novamente ou entre em contato com o suporte',
+          })
+        }
+
+        return
+      }
+
+      toast.error('Não foi possível fazer login', {
+        description: 'Tente novamente ou entre em contato com o suporte',
+      })
+    }
   }
 
   return (
@@ -94,6 +124,15 @@ export function SignIn() {
             Entrar
           </Button>
         </form>
+
+        <div className="flex gap-2 items-center justify-center mt-4">
+          <span className="text-sm text-muted-foreground">
+            Não possui uma conta?
+          </span>
+          <a href="/auth/register" className="text-sm font-medium text-primary">
+            Cadastre-se
+          </a>
+        </div>
       </div>
     </>
   )
