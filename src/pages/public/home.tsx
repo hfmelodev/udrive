@@ -15,7 +15,7 @@ export function Home() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground size-4" />
             <Input
               placeholder="Digite o nome do carro que você procura..."
-              className="pl-10 w-full text-base"
+              className="pl-10 w-full text-base placeholder:text-sm placeholder:sm:text-base"
             />
           </div>
           <Button className="shrink-0 h-10 px-6 gap-2">

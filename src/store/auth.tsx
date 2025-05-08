@@ -54,4 +54,8 @@ export const initAuthStoreListener = () => {
     // Atualiza o usuário no store se o usuário estiver logado
     useAuthStore.getState().setUser(user)
   })
+
+  return () => {
+    initialized = false // Limpa a flag de inicialização ao desmontar o componente
+  }
 }

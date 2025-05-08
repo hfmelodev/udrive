@@ -20,7 +20,7 @@ export function Panel() {
   }
   return (
     <div className="container flex items-center justify-between px-4 mx-auto h-10 bg-primary rounded-md">
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-4 sm:gap-6">
         <Link
           to="/"
           className="text-sm text-gray-200 font-medium flex items-center justify-center gap-1.5 transition hover:text-white"
@@ -42,7 +42,7 @@ export function Panel() {
           className="text-sm text-gray-200 font-medium flex items-center justify-center gap-1.5 transition hover:text-white"
         >
           <Car className="size-5" />
-          Cadastrar carro
+          Novo Carro
         </Link>
       </div>
 
