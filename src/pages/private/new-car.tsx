@@ -3,7 +3,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { storage } from '@/lib/firebase'
+import { useAuthStore } from '@/store/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from 'firebase/storage'
 import {
   Car,
   DollarSign,
@@ -14,10 +22,14 @@ import {
   MapPinHouse,
   PhoneCall,
   Plus,
+  Trash,
   Upload,
 } from 'lucide-react'
+import { type ChangeEvent, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
 
 const newCarFormSchema = z.object({
@@ -36,7 +48,18 @@ const newCarFormSchema = z.object({
 
 type NewCarFormType = z.infer<typeof newCarFormSchema>
 
+interface ImageProps {
+  uid: string
+  name: string
+  previewUrl: string
+  url: string
+}
+
 export function NewCar() {
+  const { user } = useAuthStore()
+
+  const [imagesCars, setImagesCars] = useState<ImageProps[]>([])
+
   const {
     register,
     handleSubmit,
@@ -47,6 +70,70 @@ export function NewCar() {
 
   async function handleNewCar(data: NewCarFormType) {
     console.log(data)
+  }
+
+  async function handleUploadImage(image: File) {
+    if (!user?.uid) return
+
+    const currentUid = user.uid
+    const uidImage = uuidv4()
+
+    // Envia a imagem para o Firebase Storage criando o caminho udrive-cars-images/${currentUid}/${uidImage}
+    const uploadRef = ref(
+      storage,
+      `udrive-cars-images/${currentUid}/${uidImage}`
+    )
+
+    await uploadBytes(uploadRef, image).then(snapshot => {
+      getDownloadURL(snapshot.ref).then(downloadUrl => {
+        const imageItemCar: ImageProps = {
+          uid: currentUid,
+          name: uidImage,
+          previewUrl: URL.createObjectURL(image), // URL.createObjectURL() cria uma URL temporária para o blob da imagem
+          url: downloadUrl,
+        }
+
+        setImagesCars(imagesCars => [...imagesCars, imageItemCar])
+      })
+
+      toast.success('Imagem enviada com sucesso')
+    })
+  }
+
+  async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target.files?.[0]) {
+      const image = e.target.files[0]
+
+      if (image.type !== 'image/png' && image.type !== 'image/jpeg') {
+        toast.error('Formato de imagem inválido', {
+          description: 'A imagem deve ser PNG ou JPEG',
+        })
+        return
+      }
+
+      await handleUploadImage(image)
+    }
+  }
+
+  async function handleDeleteImage(image: ImageProps) {
+    const imagePath = `udrive-cars-images/${image.uid}/${image.name}`
+
+    const imageRef = ref(storage, imagePath)
+
+    try {
+      // Exclui a imagem do Firebase Storage pelo caminho imagePath
+      await deleteObject(imageRef)
+
+      // Remove a imagem do state imagesCars
+      setImagesCars(imagesCars.filter(item => item.url !== image.url))
+
+      toast.success('Imagem excluída com sucesso')
+    } catch (err) {
+      console.log(err)
+      toast.error('Não foi possível excluir a imagem', {
+        description: 'Tente novamente mais tarde',
+      })
+    }
   }
 
   return (
@@ -66,8 +153,35 @@ export function NewCar() {
               type="file"
               accept="image/*"
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              onChange={handleFileChange}
             />
           </Label>
+
+          {imagesCars.length > 0 &&
+            imagesCars.map(image => (
+              <div
+                key={image.name}
+                className="w-full sm:w-48 md:w-52 h-32 relative"
+              >
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 rounded-full bg-white/70 hover:bg-rose-100 text-rose-600 hover:text-rose-700 shadow-sm backdrop-blur transition-all"
+                  aria-label="Remover imagem"
+                  title="Remover imagem"
+                  onClick={() => handleDeleteImage(image)}
+                >
+                  <Trash className="size-4" />
+                </Button>
+
+                <img
+                  src={image.previewUrl}
+                  alt="Foto do carro"
+                  className=" object-cover w-full h-full rounded-md"
+                />
+              </div>
+            ))}
         </div>
 
         <form
