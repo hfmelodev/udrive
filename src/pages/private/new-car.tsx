@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { storage } from '@/lib/firebase'
+import { firebase, storage } from '@/lib/firebase'
 import { useAuthStore } from '@/store/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { addDoc, collection } from 'firebase/firestore'
 import {
   deleteObject,
   getDownloadURL,
@@ -63,13 +64,49 @@ export function NewCar() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<NewCarFormType>({
     resolver: zodResolver(newCarFormSchema),
   })
 
   async function handleNewCar(data: NewCarFormType) {
-    console.log(data)
+    if (imagesCars.length === 0) {
+      toast.error('Adicione pelo menos uma imagem')
+      return
+    }
+
+    try {
+      // Omite a propriedade previewUrl da interface ImageProps
+      const carListImages: Omit<ImageProps, 'previewUrl'>[] = imagesCars.map(
+        car => {
+          return {
+            uid: car.uid,
+            name: car.name,
+            url: car.url,
+          }
+        }
+      )
+
+      await addDoc(collection(firebase, 'cars'), {
+        ...data,
+        uid: user?.uid,
+        owner: user?.name,
+        images: carListImages,
+        createdAt: new Date().getTime(),
+      })
+
+      toast.success('Carro cadastrado com sucesso')
+
+      reset() // Limpa o formulário
+      setImagesCars([]) // Limpa o state imagesCars
+    } catch (err) {
+      console.log(err)
+
+      toast.error('Não foi possível cadastrar o carro', {
+        description: 'Tente novamente ou entre em contato com o suporte',
+      })
+    }
   }
 
   async function handleUploadImage(image: File) {
