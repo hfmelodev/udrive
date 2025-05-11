@@ -1,10 +1,55 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import { firebase } from '@/lib/firebase'
+import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { Search } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
+import { Link } from 'react-router'
+
+interface CarImageProps {
+  uid: string
+  name: string
+  url: string
+}
+
+interface CarsProps {
+  id: string
+  name: string
+  year: string
+  km: string
+  price: string
+  city: string
+  uid: string
+  images: CarImageProps[]
+}
 
 export function Home() {
+  const [cars, setCars] = useState<CarsProps[]>([])
+
+  useEffect(() => {
+    async function getCars() {
+      const carsRef = collection(firebase, 'cars')
+      // Ordena os carros por data de criação em ordem decrescente (mais recentes primeiro)
+      const queryRef = query(carsRef, orderBy('createdAt', 'desc'))
+
+      // Busca os carros no Firebase
+      getDocs(queryRef).then(snapshot => {
+        const carsData = snapshot.docs.map(doc => {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          }
+        }) as CarsProps[]
+
+        setCars(carsData)
+      })
+    }
+
+    getCars()
+  }, [])
+
   return (
     <>
       <Helmet title="Home" />
@@ -37,37 +82,52 @@ export function Home() {
         </h1>
       </section>
 
-      <main className="w-full max-w-7xl mx-auto px-4 pb-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <section
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-              key={i}
-              className="bg-white rounded-2xl shadow-sm hover:shadow-md hover:border-primary transition overflow-hidden border"
-            >
-              <img
-                src="https://image.webmotors.com.br/_fotos/anunciousados/gigante/2025/202504/20250428/jeep-compass-2.0-td350-turbo-diesel-longitude-at9-wmimagem1515357461.jpg?s=fill&w=1920&h=1440&q=75"
-                alt="Carro"
-                className="w-full h-48 object-cover"
-              />
+      <main className="w-full max-w-7xl mx-auto px-4 pb-10 min-h-screen">
+        {cars.length === 0 ? (
+          <div className="flex items-center justify-center w-full h-full">
+            <p className="text-muted-foreground/50 text-sm sm:text-base rounded-md py-4 px-6 text-center">
+              Nenhum carro encontrado
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {cars.map(car => (
+              <Link to={`/car/${car.id}`} key={car.id}>
+                <section className="bg-white rounded-2xl shadow-sm hover:shadow-md hover:border-primary transition overflow-hidden border">
+                  <img
+                    key={car.uid}
+                    src={car.images[0].url}
+                    alt={car.name}
+                    className="w-full h-40 object-cover"
+                  />
 
-              <div className="p-4 space-y-2">
-                <p className="text-lg font-semibold text-slate-800">
-                  Jeep Compass
-                </p>
+                  <div className="p-4 space-y-2">
+                    <p className="text-lg font-semibold text-slate-800">
+                      {car.name}
+                    </p>
 
-                <div className="flex justify-between text-sm text-slate-500">
-                  <span>Ano 2022/2023 • 23.000 km</span>
-                  <strong className="text-slate-900">R$ 200.000</strong>
-                </div>
+                    <div className="flex justify-between text-sm text-slate-500">
+                      <span>
+                        Ano {car.year} •{' '}
+                        {Number(car.km).toLocaleString('pt-BR')} km
+                      </span>
+                      <strong className="text-slate-900">
+                        {Number(car.price).toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        })}
+                      </strong>
+                    </div>
 
-                <Separator />
+                    <Separator />
 
-                <div className="text-sm text-slate-600">São Paulo - SP</div>
-              </div>
-            </section>
-          ))}
-        </div>
+                    <div className="text-sm text-slate-600">{car.city}</div>
+                  </div>
+                </section>
+              </Link>
+            ))}
+          </div>
+        )}
       </main>
     </>
   )
