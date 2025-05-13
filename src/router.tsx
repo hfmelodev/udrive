@@ -15,14 +15,7 @@ export function Router() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<Home />} />
-        <Route
-          path="/car/:id"
-          element={
-            <PrivateRoute>
-              <CarDetails />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/car/:id" element={<CarDetails />} />
         <Route
           path="/dashboard"
           element={

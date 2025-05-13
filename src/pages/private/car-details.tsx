@@ -5,7 +5,20 @@ import { doc, getDoc } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { FaWhatsapp } from 'react-icons/fa'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
+// @ts-ignore
+import 'swiper/css'
+// @ts-ignore
+import 'swiper/css/navigation'
+// @ts-ignore
+import 'swiper/css/pagination'
+// @ts-ignore
+import 'swiper/css/scrollbar'
+import { Swiper, SwiperSlide } from 'swiper/react'
+
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { register } from 'swiper/element/bundle'
+register()
 
 interface CarImageProps {
   uid: string
@@ -63,9 +76,58 @@ export function CarDetails() {
     <>
       <Helmet title="Detalhes do carro" />
 
+      {/* Componente Swiper que exibe as imagens do carro com paginação */}
+      <Swiper
+        breakpoints={{
+          320: { slidesPerView: 1 },
+          640: { slidesPerView: 1.2 },
+          768: { slidesPerView: 1.5 },
+          1024: { slidesPerView: 2 },
+        }}
+        spaceBetween={10}
+        pagination={{ clickable: true }}
+        navigation={{
+          nextEl: '.custom-next',
+          prevEl: '.custom-prev',
+        }}
+        className="w-full max-w-7xl mx-auto rounded-xl overflow-hidden mb-6 relative"
+      >
+        {car?.images.map(image => (
+          <SwiperSlide
+            key={image.name}
+            className="transition-transform duration-300 hover:scale-[1.01]"
+          >
+            <img
+              src={image.url}
+              alt={image.name}
+              loading="lazy"
+              className="w-full h-[250px] sm:h-[300px] md:h-[400px] object-cover rounded-lg shadow-md"
+            />
+          </SwiperSlide>
+        ))}
+
+        {/* Botões personalizados com ícones */}
+        <Button
+          type="button"
+          size="icon"
+          variant="outline"
+          className="custom-prev absolute top-1/2 -translate-y-1/2 left-2 sm:left-4 z-10"
+        >
+          <ChevronLeft className="text-primary size-5" />
+        </Button>
+        <Button
+          type="button"
+          size="icon"
+          variant="outline"
+          className="custom-next absolute top-1/2 -translate-y-1/2 right-2 sm:right-4 z-10"
+        >
+          <ChevronRight className="text-primary size-5" />
+        </Button>
+      </Swiper>
+
       {car && (
         <main className="w-full max-w-7xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-slate-200">
-          <header className="flex flex-col sm:flex-row items-center justify-between gap-2 mb-6">
+          <header className="flex flex-row items-center justify-between gap-2 mb-6">
             <h1 className="text-2xl sm:text-3xl font-semibold text-slate-800">
               {car.name}
             </h1>
@@ -103,9 +165,14 @@ export function CarDetails() {
             </p>
           </section>
 
-          <Button className="w-full">
-            <FaWhatsapp />
-            Conversar com o Anunciante
+          <Button className="w-full" asChild>
+            <Link
+              to={`https://wa.me/${car.whatsapp}?text=Olá, gostaria de saber mais sobre o carro ${car.name}`}
+              target="_blank"
+            >
+              <FaWhatsapp />
+              Conversar com Tasso Cornin e Israel Safadin
+            </Link>
           </Button>
 
           <footer className="mt-8 text-center text-sm text-muted-foreground">
