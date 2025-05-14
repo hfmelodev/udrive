@@ -90,10 +90,11 @@ export function NewCar() {
 
       await addDoc(collection(firebase, 'cars'), {
         ...data,
+        name: data.name.toLocaleUpperCase(),
         uid: user?.uid,
         owner: user?.name,
         images: carListImages,
-        createdAt: new Date().getTime(),
+        createdAt: new Date().toISOString(),
       })
 
       toast.success('Carro cadastrado com sucesso')

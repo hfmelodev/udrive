@@ -90,7 +90,7 @@ export function CarDetails() {
           nextEl: '.custom-next',
           prevEl: '.custom-prev',
         }}
-        className="w-full max-w-7xl mx-auto rounded-xl overflow-hidden mb-6 relative"
+        className="relative mx-auto mb-6 w-full max-w-7xl overflow-hidden rounded-xl"
       >
         {car?.images.map(image => (
           <SwiperSlide
@@ -101,7 +101,7 @@ export function CarDetails() {
               src={image.url}
               alt={image.name}
               loading="lazy"
-              className="w-full h-[250px] sm:h-[300px] md:h-[400px] object-cover rounded-lg shadow-md"
+              className="h-[250px] w-full rounded-lg object-cover shadow-md sm:h-[300px] md:h-[400px]"
             />
           </SwiperSlide>
         ))}
@@ -111,56 +111,59 @@ export function CarDetails() {
           type="button"
           size="icon"
           variant="outline"
-          className="custom-prev absolute top-1/2 -translate-y-1/2 left-2 sm:left-4 z-10"
+          className="custom-prev -translate-y-1/2 absolute top-1/2 left-2 z-10 sm:left-4"
         >
-          <ChevronLeft className="text-primary size-5" />
+          <ChevronLeft className="size-5 text-primary" />
         </Button>
         <Button
           type="button"
           size="icon"
           variant="outline"
-          className="custom-next absolute top-1/2 -translate-y-1/2 right-2 sm:right-4 z-10"
+          className="custom-next -translate-y-1/2 absolute top-1/2 right-2 z-10 sm:right-4"
         >
-          <ChevronRight className="text-primary size-5" />
+          <ChevronRight className="size-5 text-primary" />
         </Button>
       </Swiper>
 
       {car && (
-        <main className="w-full max-w-7xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-slate-200">
-          <header className="flex flex-row items-center justify-between gap-2 mb-6">
-            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-800">
+        <main className="mx-auto w-full max-w-7xl rounded-2xl border border-slate-200 bg-white p-6 shadow-md sm:p-8">
+          <header className="mb-6 flex flex-row items-center justify-between gap-2">
+            <h1 className="font-semibold text-2xl text-slate-800 sm:text-3xl">
               {car.name}
             </h1>
-            <p className="text-2xl sm:text-3xl font-bold text-green-600">
-              R$ {car.price}
+            <p className="font-bold text-2xl text-green-600 sm:text-3xl">
+              {Number(car.price).toLocaleString('pt-BR', {
+                currency: 'BRL',
+                style: 'currency',
+              })}
             </p>
           </header>
 
-          <section className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-6">
+          <section className="mb-6 grid grid-cols-2 gap-6 sm:grid-cols-3">
             <div>
-              <span className="text-sm text-slate-500">Cidade</span>
-              <p className="text-lg font-medium text-slate-800">{car.city}</p>
+              <span className="text-slate-500 text-sm">Cidade</span>
+              <p className="font-medium text-lg text-slate-800">{car.city}</p>
             </div>
             <div>
-              <span className="text-sm text-slate-500">Ano</span>
-              <p className="text-lg font-medium text-slate-800">{car.year}</p>
+              <span className="text-slate-500 text-sm">Ano</span>
+              <p className="font-medium text-lg text-slate-800">{car.year}</p>
             </div>
             <div>
-              <span className="text-sm text-slate-500">Kilometragem</span>
-              <p className="text-lg font-medium text-slate-800">{car.km}</p>
+              <span className="text-slate-500 text-sm">Kilometragem</span>
+              <p className="font-medium text-lg text-slate-800">{car.km}</p>
             </div>
           </section>
 
           <section className="mb-4">
-            <span className="text-sm text-slate-500">Descrição</span>
-            <p className="text-base sm:text-lg font-medium text-slate-700 mt-1">
+            <span className="text-slate-500 text-sm">Descrição</span>
+            <p className="mt-1 font-medium text-base text-slate-700 sm:text-lg">
               {car.description}
             </p>
           </section>
 
           <section className="mb-6">
-            <span className="text-sm text-slate-500">Telefone / WhatsApp</span>
-            <p className="text-base sm:text-lg font-medium text-slate-700 mt-1">
+            <span className="text-slate-500 text-sm">Telefone / WhatsApp</span>
+            <p className="mt-1 font-medium text-base text-slate-700 sm:text-lg">
               {formatPhoneNumber(car.whatsapp)}
             </p>
           </section>
@@ -171,11 +174,11 @@ export function CarDetails() {
               target="_blank"
             >
               <FaWhatsapp />
-              Conversar com Tasso Cornin e Israel Safadin
+              Conversar com o vendedor
             </Link>
           </Button>
 
-          <footer className="mt-8 text-center text-sm text-muted-foreground">
+          <footer className="mt-8 text-center text-muted-foreground text-sm">
             © {new Date().getFullYear()} UDrive. Todos os direitos reservados.
           </footer>
         </main>
