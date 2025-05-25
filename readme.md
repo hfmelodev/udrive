@@ -2,8 +2,6 @@
 
 O **UDrive** é uma plataforma de compra e venda de veículos, desenvolvida com uma stack moderna e pensada para oferecer uma experiência simples, rápida e eficiente para usuários que desejam anunciar ou procurar veículos.
 
-> 🚀 Este projeto faz parte da minha jornada de evolução como desenvolvedor. Agradeço especialmente ao **Matheus Fraga (Sujeito Programador)** por toda didática e ensinamento que foram fundamentais nesse desenvolvimento.
-
 ## 🖥️ Demonstração
 
 ### Telas da aplicação:
